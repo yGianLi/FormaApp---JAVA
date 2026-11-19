@@ -34,7 +34,7 @@ public class App extends Application {
         nav.setPrefHeight(78);
         nav.setStyle("-fx-background-color:#ffffff;");
 
-        VBox content = new VBox();
+        content = new VBox();
         content.setPadding(new Insets(40));
         content.setStyle("-fx-background-color: #f6f6f3;");
 
@@ -45,7 +45,7 @@ public class App extends Application {
         root.setCenter(mainArea);
 
         // Criação da Logo
-        Label logoTexto = new Label("forma");
+        Label logoTexto = new Label("Forma");
         logoTexto.setStyle("-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #1f2d24;");
         Label logoPonto =new Label(".");
         logoPonto.setStyle("-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #789366;");
@@ -58,11 +58,11 @@ public class App extends Application {
         sidebar.getChildren().addAll(
                 logo,
                 secaoSideBar,
-                createNavItem("▦", "Visão geral", true),
-                createNavItem("🏋", "Meus treinos", false),
-                createNavItem("📈", "Evolução", false),
-                createNavItem("🏅", "Conquistas", false),
-                createNavItem("♡", "Meu corpo", false)
+                createNavItem("▦", "Visão geral", true,  new TelaVisaoGeral()),
+                createNavItem("🏋", "Meus treinos", false, new TelaTreinos()),
+                createNavItem("📈", "Evolução", false,  new TelaEvolucao()),
+                createNavItem("🏅", "Conquistas", false,  new TelaConquistas()),
+                createNavItem("♡", "Meu corpo", false,    new TelaMeuCorpo())
         );
 
 
@@ -71,11 +71,12 @@ public class App extends Application {
         Scene scene = new Scene(root, 640, 480);
 
         stage.setScene(scene);
-        stage.setTitle("BorderExamples");
+        stage.setTitle("Forma");
         stage.show();
     }
 
     private final List<HBox> itensMenu = new ArrayList<>();
+    private VBox content;
 
     private void aplicarEfeito( HBox item, boolean ativo){
         Label texto = (Label) item.getChildren().get(1);
@@ -90,7 +91,7 @@ public class App extends Application {
                 texto.setStyle("");
             }
     }
-    private HBox createNavItem(String icone, String texto1, boolean ativo){
+    private HBox createNavItem(String icone, String texto1, boolean ativo, VBox conteudoDaAba){
         Label iconeLabel = new Label(icone);          // o ícone
         Label botoes = new Label(texto1);             // o texto
         Label bolinha = new Label("●");               // a bolinha
@@ -111,10 +112,18 @@ public class App extends Application {
             for (HBox itemBox : itensMenu) {
                 aplicarEfeito(itemBox, itemBox == item);
             }
+            content.getChildren().setAll(conteudoDaAba);   // troca o conteúdo
         });
+
+        // se já nasce ativo, mostra o conteúdo logo de cara
+        if (ativo) {
+            content.getChildren().setAll(conteudoDaAba);
+        }
+
         return item;
 
     }
+
 
     public static void main(String[] args) {
         launch();
