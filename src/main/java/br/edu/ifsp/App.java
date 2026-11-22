@@ -55,20 +55,25 @@ public class App extends Application {
         Label secaoSideBar = new Label("SEU ESPAÇO");
         secaoSideBar.setStyle("-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: #8b918c;");
         secaoSideBar.setPadding(new Insets(24, 0, 8, 8));
+        TelaTreinos telaTreinos = new TelaTreinos();
+        HBox itemTreinos = createNavItem("🏋", "Meus treinos", false, telaTreinos);
+
+        TelaVisaoGeral telaVisaoGeral =
+                new TelaVisaoGeral(() -> selecionar(itemTreinos, telaTreinos));
+        HBox itemVisao = createNavItem("▦", "Visão geral", true, telaVisaoGeral);
         sidebar.getChildren().addAll(
                 logo,
                 secaoSideBar,
-                createNavItem("▦", "Visão geral", true,  new TelaVisaoGeral()),
-                createNavItem("🏋", "Meus treinos", false, new TelaTreinos()),
-                createNavItem("📈", "Evolução", false,  new TelaEvolucao()),
-                createNavItem("🏅", "Conquistas", false,  new TelaConquistas()),
-                createNavItem("♡", "Meu corpo", false,    new TelaMeuCorpo())
+                itemVisao,
+                itemTreinos,
+                createNavItem("📈", "Evolução", false, new TelaEvolucao()),
+                createNavItem("🏅", "Conquistas", false, new TelaConquistas()),
+                createNavItem("♡", "Meu corpo", false, new TelaMeuCorpo())
         );
-
 
         root.setPadding(new Insets(10));
 
-        Scene scene = new Scene(root, 640, 480);
+        Scene scene = new Scene(root, 1020, 680);
 
         stage.setScene(scene);
         stage.setTitle("Forma");
@@ -108,12 +113,7 @@ public class App extends Application {
         itensMenu.add(item);
         aplicarEfeito(item, ativo);
 
-        item.setOnMouseClicked(event -> {
-            for (HBox itemBox : itensMenu) {
-                aplicarEfeito(itemBox, itemBox == item);
-            }
-            content.getChildren().setAll(conteudoDaAba);   // troca o conteúdo
-        });
+        item.setOnMouseClicked(e -> selecionar(item, conteudoDaAba));
 
         // se já nasce ativo, mostra o conteúdo logo de cara
         if (ativo) {
@@ -124,6 +124,12 @@ public class App extends Application {
 
     }
 
+    private void selecionar(HBox item, VBox tela) {
+        for (HBox i : itensMenu) {
+            aplicarEfeito(i, i == item);   // atualiza o destaque do menu
+        }
+        content.getChildren().setAll(tela);
+    }
 
     public static void main(String[] args) {
         launch();
