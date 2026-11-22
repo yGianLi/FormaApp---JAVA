@@ -39,14 +39,16 @@ public class TelaVisaoGeral extends VBox {
         return saudacao;
     }
     private Node criarLinhaDeCards() {
-        HBox linha = new HBox(16,
-            new StatCard("Treinos concluídos", "0", "0 esta semana"),
-            new StatCard("Sequência atual", "0", "Vamos começar?"),
-            new StatCard("Meta da semana", "0", "0% da meta alcançada"),
-            new StatCard("Conquistas desbloqueadas", "0", "Seu esforço vale a pena")
+        return new HBox(16,
+                new StatCard("Treinos concluídos", "0", "", "🏋", "#e8eedf",
+                        "0 esta semana", "Continue evoluindo"),
+                new StatCard("Sequência atual", "0", "dias", "🔥", "#fcebdd",
+                        "Vamos começar?", "Um dia de cada vez"),
+                new StatCard("Meta da semana", "0", "/ 5 treinos", "◎", "#e3e9f5",
+                        "0% da meta alcançada", "").comProgresso(0.0),
+                new StatCard("Conquistas desbloqueadas", "0", "/ 4", "🏅", "#eee6f6",
+                        "Seu esforço vale a pena", "Novos desafios à frente")
         );
-        VBox Card = new VBox(4, linha);
-        return Card;
     }
     private Node criarParteDeBaixo() {
         Label secao = new Label("Seus treinos");
