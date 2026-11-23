@@ -2,6 +2,7 @@ package br.edu.ifsp;
 
 import br.edu.ifsp.Cards.StatCard;
 import br.edu.ifsp.Cards.TreinoCard;
+import br.edu.ifsp.TreinoSecao.RepositorioTreinos;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
@@ -12,44 +13,63 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
 public class TelaVisaoGeral extends VBox {
+    private static final int META_SEMANAL = 5;
+
     private final Runnable aoIrParaTreinos;
 
     public TelaVisaoGeral(Runnable aoIrParaTreinos) {
         super(24);
         this.aoIrParaTreinos = aoIrParaTreinos;
+        atualizar();
+    }
 
-        Label titulo = new Label("Visão geral");
-        titulo.setStyle("-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #1f2d24;");
-
-        getChildren().addAll(
+    /** Redesenha a tela com os números atuais do .json. */
+    public void atualizar() {
+        getChildren().setAll(
                 criarSaudacao(),
                 criarLinhaDeCards(),
                 criarParteDeBaixo()
         );
     }
 
-// Node é uma classe base de tudo que aparece na tela em JavaFX
+    // Node é uma classe base de tudo que aparece na tela em JavaFX
     private Node criarSaudacao() {
         Label titulo = new Label("Vamos nessa @usuario!");
         titulo.setStyle("-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #1f2d24;");
         Label subtitulo = new Label("Cada treino é um passo mais perto da sua melhor versão");
         subtitulo.setStyle("-fx-font-size: 14px; -fx-text-fill: #1f2d24;");
 
-        VBox saudacao = new VBox(4, titulo , subtitulo);
-        return saudacao;
+        return new VBox(4, titulo, subtitulo);
     }
+
     private Node criarLinhaDeCards() {
+        RepositorioTreinos repo = RepositorioTreinos.get();
+
+        int total = repo.totalConcluidos();
+        long semana = repo.concluidosNaSemana();
+        int sequencia = repo.sequenciaAtual();
+        int desbloqueadas = repo.conquistasDesbloqueadas();
+        int totalConquistas = repo.getConquistas().size();
+
+        double progressoSemana = Math.min(1.0, (double) semana / META_SEMANAL);
+        int percentual = (int) Math.round(progressoSemana * 100);
+
         return new HBox(16,
-                new StatCard("Treinos concluídos", "0", "", "🏋", "#e8eedf",
-                        "0 esta semana", "Continue evoluindo"),
-                new StatCard("Sequência atual", "0", "dias", "🔥", "#fcebdd",
-                        "Vamos começar?", "Um dia de cada vez"),
-                new StatCard("Meta da semana", "0", "/ 5 treinos", "◎", "#e3e9f5",
-                        "0% da meta alcançada", "").comProgresso(0.0),
-                new StatCard("Conquistas desbloqueadas", "0", "/ 4", "🏅", "#eee6f6",
+                new StatCard("Treinos concluídos", String.valueOf(total), "", "🏋", "#e8eedf",
+                        semana + " esta semana", "Continue evoluindo"),
+                new StatCard("Sequência atual", String.valueOf(sequencia),
+                        sequencia == 1 ? "dia" : "dias", "🔥", "#fcebdd",
+                        sequencia == 0 ? "Vamos começar?" : "Continue assim!",
+                        "Um dia de cada vez"),
+                new StatCard("Meta da semana", String.valueOf(semana),
+                        "/ " + META_SEMANAL + " treinos", "◎", "#e3e9f5",
+                        percentual + "% da meta alcançada", "").comProgresso(progressoSemana),
+                new StatCard("Conquistas desbloqueadas", String.valueOf(desbloqueadas),
+                        "/ " + totalConquistas, "🏅", "#eee6f6",
                         "Seu esforço vale a pena", "Novos desafios à frente")
         );
     }
+
     private Node criarParteDeBaixo() {
         Label secao = new Label("Seus treinos");
         secao.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1f2d24;");
@@ -73,5 +93,6 @@ public class TelaVisaoGeral extends VBox {
         HBox.setHgrow(colunaTreinos, Priority.ALWAYS);
 
         // aqui entra a "Sua constância" depois
-        return new HBox(20, colunaTreinos); }
+        return new HBox(20, colunaTreinos);
+    }
 }

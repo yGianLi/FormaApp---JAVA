@@ -1,6 +1,6 @@
 package br.edu.ifsp.TreinoSecao;
 
-
+import br.edu.ifsp.model.Conquista;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -10,9 +10,11 @@ import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
- * Guarda treinos e histórico em ~/.forma/dados.json
+ * Guarda treinos, histórico e conquistas em ~/.forma/dados.json
  * Uso: RepositorioTreinos.get().getTreinos()
  */
 public class RepositorioTreinos {
@@ -20,6 +22,7 @@ public class RepositorioTreinos {
     private static class Dados {
         List<Treino> treinos = new ArrayList<>();
         List<SessaoTreino> sessoes = new ArrayList<>();
+        List<Conquista> conquistas = new ArrayList<>();
     }
 
     private static RepositorioTreinos instancia;
@@ -36,10 +39,11 @@ public class RepositorioTreinos {
     private RepositorioTreinos() {
         boolean primeiraVez = !Files.exists(arquivo);
         carregar();
-        if (primeiraVez) {
-            criarTreinosIniciais();
-            salvar();
-        }
+        if (primeiraVez) criarTreinosIniciais();
+        if (dados.conquistas == null) dados.conquistas = new ArrayList<>();
+        if (dados.conquistas.isEmpty()) criarConquistasIniciais();
+        recalcularConquistas();
+        salvar();
     }
 
     // ---------- Treinos ----------
@@ -73,6 +77,7 @@ public class RepositorioTreinos {
 
     public void salvarSessao(SessaoTreino s) {
         dados.sessoes.add(s);
+        recalcularConquistas();
         salvar();
     }
 
@@ -91,6 +96,44 @@ public class RepositorioTreinos {
                 .filter(SessaoTreino::isConcluida)
                 .filter(s -> !s.getData().isBefore(segunda))
                 .count();
+    }
+
+    // ---------- Conquistas ----------
+    public List<Conquista> getConquistas() { return dados.conquistas; }
+
+    private void criarConquistasIniciais() {
+        dados.conquistas.addAll(List.of(
+                new Conquista("Primeiro passo", "Conclua seu primeiro treino", "Treinos", "🏋", "#e8f0e2", 0, 1),
+                new Conquista("No ritmo", "Treine por 3 dias seguidos", "Constância", "🔥", "#fdeee2", 0, 3),
+                new Conquista("Construindo força", "Complete 10 treinos", "Treinos", "⚡", "#efecf6", 0, 10),
+                new Conquista("Uma nova versão", "Complete 20 treinos", "Objetivos", "◎", "#e9eff5", 0, 20)
+        ));
+    }
+
+    /** Recalcula o progresso de cada conquista a partir das sessões concluídas. */
+    private void recalcularConquistas() {
+        int totalConcluidos = (int) dados.sessoes.stream().filter(SessaoTreino::isConcluida).count();
+        int melhorSequencia = melhorSequenciaDeDias();
+
+        for (Conquista c : dados.conquistas) {
+            int valor = c.getTitulo().equals("No ritmo") ? melhorSequencia : totalConcluidos;
+            c.setAtual(Math.min(valor, c.getMeta()));
+        }
+    }
+
+    private int melhorSequenciaDeDias() {
+        Set<LocalDate> dias = new TreeSet<>();
+        for (SessaoTreino s : dados.sessoes) {
+            if (s.isConcluida()) dias.add(s.getData());
+        }
+        int melhor = 0, atual = 0;
+        LocalDate anterior = null;
+        for (LocalDate d : dias) {
+            atual = (anterior != null && anterior.plusDays(1).equals(d)) ? atual + 1 : 1;
+            melhor = Math.max(melhor, atual);
+            anterior = d;
+        }
+        return melhor;
     }
 
     // ---------- Arquivo ----------
@@ -121,5 +164,30 @@ public class RepositorioTreinos {
         Treino b = new Treino("Pernas e glúteos", "Inferior", 60);
         Treino c = new Treino("Peito e tríceps", "Superior", 50);
         dados.treinos.addAll(List.of(a, b, c));
+    }
+
+    // ---------- Estatísticas para a Visão geral ----------
+    public int totalConcluidos() {
+        return (int) dados.sessoes.stream().filter(SessaoTreino::isConcluida).count();
+    }
+
+    /** Dias seguidos treinando até hoje (se ainda não treinou hoje, conta até ontem). */
+    public int sequenciaAtual() {
+        Set<LocalDate> dias = new TreeSet<>();
+        for (SessaoTreino s : dados.sessoes) {
+            if (s.isConcluida()) dias.add(s.getData());
+        }
+        LocalDate d = LocalDate.now();
+        if (!dias.contains(d)) d = d.minusDays(1);
+        int sequencia = 0;
+        while (dias.contains(d)) {
+            sequencia++;
+            d = d.minusDays(1);
+        }
+        return sequencia;
+    }
+
+    public int conquistasDesbloqueadas() {
+        return (int) dados.conquistas.stream().filter(Conquista::isConcluida).count();
     }
 }

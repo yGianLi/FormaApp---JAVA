@@ -1,5 +1,6 @@
 package br.edu.ifsp;
 
+import br.edu.ifsp.TreinoSecao.RepositorioTreinos;
 import br.edu.ifsp.model.Conquista;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -15,12 +16,7 @@ import java.util.List;
 
 public class TelaConquistas extends VBox {
 
-    private final List<Conquista> conquistas = List.of(
-            new Conquista("Primeiro passo", "Conclua seu primeiro treino", "Treinos", "🏋", "#e8f0e2", 0, 1),
-            new Conquista("No ritmo", "Treine por 3 dias seguidos", "Constância", "🔥", "#fdeee2", 0, 3),
-            new Conquista("Construindo força", "Complete 10 treinos", "Treinos", "⚡", "#efecf6", 0, 10),
-            new Conquista("Uma nova versão", "Complete 20 treinos", "Objetivos", "◎", "#e9eff5", 0, 20)
-    );
+    private List<Conquista> conquistas = RepositorioTreinos.get().getConquistas();
     private final List<String> filtros = List.of("Todas", "Treinos", "Constância", "Objetivos");
 
     private final HBox barraFiltros = new HBox(10);
@@ -39,7 +35,10 @@ public class TelaConquistas extends VBox {
         atualizar();
     }
 
-    private void atualizar() {
+    /** Relê as conquistas do repositório e redesenha a tela. */
+    public void atualizar() {
+        conquistas = RepositorioTreinos.get().getConquistas();
+
         barraFiltros.getChildren().clear();
         for (String f : filtros) {
             barraFiltros.getChildren().add(criarChip(f));
@@ -149,7 +148,8 @@ public class TelaConquistas extends VBox {
         trilha.getChildren().add(preenchimento);
 
         Label contador = new Label(c.getAtual() + "/" + c.getMeta());
-        contador.setStyle("-fx-font-size: 9px; -fx-text-fill: #8b918c;");
+        contador.setStyle("-fx-font-size: 9px; -fx-text-fill: "
+                + (c.isConcluida() ? "#3d6b4f; -fx-font-weight: bold;" : "#8b918c;"));
 
         HBox linhaProgresso = new HBox(12, trilha, contador);
         linhaProgresso.setAlignment(Pos.CENTER_LEFT);

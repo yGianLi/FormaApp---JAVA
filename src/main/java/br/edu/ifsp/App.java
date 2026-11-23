@@ -169,6 +169,13 @@ public class App extends Application {
             aplicarEfeito(i, i == item);
         }
 
+        // Relê o .json toda vez que a aba é aberta, para o progresso aparecer atualizado
+        if (tela instanceof TelaVisaoGeral) {
+            ((TelaVisaoGeral) tela).atualizar();
+        } else if (tela instanceof TelaConquistas) {
+            ((TelaConquistas) tela).atualizar();
+        }
+
         paginaAtual.setText((String) item.getUserData());
         content.getChildren().setAll(tela);
     }

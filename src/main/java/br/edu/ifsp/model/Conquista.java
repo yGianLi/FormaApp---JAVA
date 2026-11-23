@@ -2,7 +2,8 @@ package br.edu.ifsp.model;
 
 public class Conquista {
     private final String titulo, descricao, categoria, icone, cor;
-    private final int atual, meta;
+    private int atual;
+    private final int meta;
 
     public Conquista(String titulo, String descricao, String categoria,
                      String icone, String cor, int atual, int meta) {
@@ -17,4 +18,7 @@ public class Conquista {
     public String getCor() { return cor; }
     public int getAtual() { return atual; }
     public int getMeta() { return meta; }
+
+    public void setAtual(int atual) { this.atual = atual; }
+    public boolean isConcluida() { return atual >= meta; }
 }
