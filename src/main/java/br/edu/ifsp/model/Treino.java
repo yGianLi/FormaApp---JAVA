@@ -9,8 +9,7 @@ public class Treino {
     private final int minutos;
     private final List<Exercicio> exercicios;
 
-    public Treino(String letra, String grupo, String nome,
-                  int minutos, List<Exercicio> exercicios) {
+    public Treino(String letra, String grupo, String nome, int minutos, List<Exercicio> exercicios) {
         this.letra = letra;
         this.grupo = grupo;
         this.nome = nome;

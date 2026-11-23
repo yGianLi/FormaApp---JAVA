@@ -3,11 +3,13 @@ package br.edu.ifsp;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
@@ -81,7 +83,13 @@ public class App extends Application {
                 criarCardMotivacional()
         );
 
-        Scene scene = new Scene(root, 1280, 800);
+        Rectangle2D tela = Screen.getPrimary().getVisualBounds();   // área útil, sem a barra de tarefas
+        double largura = Math.min(1100, tela.getWidth() * 0.9);
+        double altura = Math.min(720, tela.getHeight() * 0.9);
+
+        Scene scene = new Scene(root, largura, altura);
+        stage.setMinWidth(Math.min(900, tela.getWidth()));
+        stage.setMinHeight(Math.min(560, tela.getHeight()));
 
         stage.setScene(scene);
         stage.setTitle("Forma");
