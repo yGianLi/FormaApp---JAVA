@@ -12,11 +12,15 @@ import javafx.scene.layout.*;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class App extends Application {
 
+    private final Label paginaAtual = new Label();
     private final List<HBox> itensMenu = new ArrayList<>();
     private VBox content;
 
@@ -41,8 +45,14 @@ public class App extends Application {
         scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scroll.setStyle("-fx-background: #f6f6f3; -fx-background-color: transparent;");
 
+        HBox nav = criarBarraTopo();
+
+        BorderPane mainArea = new BorderPane();
+        mainArea.setTop(nav);
+        mainArea.setCenter(scroll);
+
         root.setLeft(sidebar);
-        root.setCenter(scroll);
+        root.setCenter(mainArea);
 
         // Logo
         Label logoTexto = new Label("Forma");
@@ -135,6 +145,7 @@ public class App extends Application {
         HBox.setHgrow(espaco, Priority.ALWAYS);
 
         HBox item = new HBox(14, iconeLabel, botoes, espaco, bolinha);
+        item.setUserData(texto1);
         item.setAlignment(Pos.CENTER_LEFT);
         item.setPadding(new Insets(0, 14, 0, 14));
         item.setMinHeight(46);
@@ -146,6 +157,7 @@ public class App extends Application {
         item.setOnMouseClicked(e -> selecionar(item, conteudoDaAba));
 
         if (ativo) {
+            paginaAtual.setText(texto1);
             content.getChildren().setAll(conteudoDaAba);
         }
 
@@ -156,7 +168,44 @@ public class App extends Application {
         for (HBox i : itensMenu) {
             aplicarEfeito(i, i == item);
         }
+
+        paginaAtual.setText((String) item.getUserData());
         content.getChildren().setAll(tela);
+    }
+
+    private HBox criarBarraTopo() {
+        Label meuEspaco = new Label("Meu espaço");
+        meuEspaco.setStyle("-fx-font-size: 11px; -fx-text-fill: #8b918c;");
+        Label separador = new Label("›");
+        separador.setStyle("-fx-text-fill: #8b918c;");
+        paginaAtual.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #1f2d24;");
+
+        HBox breadcrumb = new HBox(10, meuEspaco, separador, paginaAtual);
+        breadcrumb.setAlignment(Pos.CENTER_LEFT);
+
+        String data = LocalDate.now().format(DateTimeFormatter.ofPattern("d 'de' MMMM 'de' yyyy", Locale.forLanguageTag("pt-BR")));
+        Label dataLabel = new Label("📅  " + data);
+        dataLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #6b726d;");
+
+        Label sino = new Label("🔔");
+        sino.setCursor(Cursor.HAND);
+
+        Label avatar = new Label("@");
+        avatar.setMinSize(32, 32);
+        avatar.setAlignment(Pos.CENTER);
+        avatar.setStyle("-fx-background-color: #e4ecdf; -fx-background-radius: 16;"
+                + "-fx-text-fill: #3d6b4f; -fx-font-weight: bold;");
+
+        Region espaco = new Region();
+        HBox.setHgrow(espaco, Priority.ALWAYS);
+
+        HBox barra = new HBox(18, breadcrumb, espaco, dataLabel, sino, avatar);
+        barra.setAlignment(Pos.CENTER_LEFT);
+        barra.setPadding(new Insets(0, 40, 0, 40));
+        barra.setPrefHeight(78);
+        barra.setStyle("-fx-background-color: #ffffff; -fx-border-color: #ececE6;"
+                + "-fx-border-width: 0 0 1 0;");
+        return barra;
     }
 
     public static void main(String[] args) {
