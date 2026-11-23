@@ -34,8 +34,9 @@ public class RepositorioTreinos {
     private Dados dados = new Dados();
 
     private RepositorioTreinos() {
+        boolean primeiraVez = !Files.exists(arquivo);
         carregar();
-        if (dados.treinos.isEmpty()) {
+        if (primeiraVez) {
             criarTreinosIniciais();
             salvar();
         }
