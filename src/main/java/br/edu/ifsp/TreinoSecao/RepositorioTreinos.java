@@ -23,11 +23,11 @@ public class RepositorioTreinos {
         List<Treino> treinos = new ArrayList<>();
         List<SessaoTreino> sessoes = new ArrayList<>();
         List<Conquista> conquistas = new ArrayList<>();
-    }
+    } //cria no JSON tres listas, treinos, conquistas e sessoes
 
     private static RepositorioTreinos instancia;
 
-    public static RepositorioTreinos get() {
+    public static RepositorioTreinos get() { //As telas não criam o repositório com new. Elas chamam RepositorioTreinos.get()
         if (instancia == null) instancia = new RepositorioTreinos();
         return instancia;
     }
@@ -121,7 +121,7 @@ public class RepositorioTreinos {
         }
     }
 
-    private int melhorSequenciaDeDias() {
+    private int melhorSequenciaDeDias() {  //Junta os dias: percorre dados.sessoes e guarda a data de cada sessão concluída num TreeSet. Ele não aceita repetidos, então dois treinos no mesmo dia contam como um só, e mantém as datas em ordem crescente.
         Set<LocalDate> dias = new TreeSet<>();
         for (SessaoTreino s : dados.sessoes) {
             if (s.isConcluida()) dias.add(s.getData());
@@ -133,7 +133,7 @@ public class RepositorioTreinos {
             melhor = Math.max(melhor, atual);
             anterior = d;
         }
-        return melhor;
+        return melhor; //Guarda o recorde: melhor = Math.max(melhor, atual) mantém o maior valor visto. Sem nenhum treino concluído, devolve
     }
 
     // ---------- Arquivo ----------
@@ -141,7 +141,7 @@ public class RepositorioTreinos {
         try {
             if (Files.exists(arquivo)) {
                 Dados lido = gson.fromJson(Files.readString(arquivo), Dados.class);
-                if (lido != null) dados = lido;
+                if (lido != null) dados = lido;  // lê os dados dentro do .json
             }
         } catch (IOException | RuntimeException e) {
             System.err.println("Não foi possível ler " + arquivo + ": " + e.getMessage());
@@ -150,8 +150,8 @@ public class RepositorioTreinos {
 
     private void salvar() {
         try {
-            Files.createDirectories(arquivo.getParent());
-            Files.writeString(arquivo, gson.toJson(dados));
+            Files.createDirectories(arquivo.getParent()); // cria a pasta .forma no diretorio de usuarios
+            Files.writeString(arquivo, gson.toJson(dados)); //transforma os dados e cria o arquivo .json
         } catch (IOException e) {
             System.err.println("Não foi possível salvar " + arquivo + ": " + e.getMessage());
         }
@@ -163,12 +163,12 @@ public class RepositorioTreinos {
                 "Rosca Direta", "Rosca Martelo"));
         Treino b = new Treino("Pernas e glúteos", "Inferior", 60);
         Treino c = new Treino("Peito e tríceps", "Superior", 50);
-        dados.treinos.addAll(List.of(a, b, c));
+        dados.treinos.addAll(List.of(a, b, c)); // já adiciona os treinos exemplos iniciais no arquivo .json
     }
 
     // ---------- Estatísticas para a Visão geral ----------
     public int totalConcluidos() {
-        return (int) dados.sessoes.stream().filter(SessaoTreino::isConcluida).count();
+        return (int) dados.sessoes.stream().filter(SessaoTreino::isConcluida).count(); // contador de concluidos
     }
 
     /** Dias seguidos treinando até hoje (se ainda não treinou hoje, conta até ontem). */
@@ -188,6 +188,6 @@ public class RepositorioTreinos {
     }
 
     public int conquistasDesbloqueadas() {
-        return (int) dados.conquistas.stream().filter(Conquista::isConcluida).count();
+        return (int) dados.conquistas.stream().filter(Conquista::isConcluida).count(); //se a conquista foi concluida, add um no contador
     }
 }
